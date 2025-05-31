@@ -5,7 +5,16 @@ import time
 
 # Waifu list (tum baad me isme aur add kar sakte ho)
 waifus = [
-    "Rem", "Emilia", "Zero Two", "Asuna", "Hinata", "Rias Gremory", "Kurumi Tokisaki", "Mikasa", "Nezuko", "Mai Sakurajima"
+    {"name": "Rem", "image": "https://i.imgur.com/u8fFZQy.jpeg"},
+    {"name": "Emilia", "image": "https://i.imgur.com/fSuhzG8.jpeg"},
+    {"name": "Zero Two", "image": "https://i.imgur.com/8cvZyKR.jpeg"},
+    {"name": "Asuna", "image": "https://i.imgur.com/1FfQKn5.jpeg"},
+    {"name": "Hinata", "image": "https://i.imgur.com/ZJ3J1Bh.jpeg"},
+    {"name": "Rias Gremory", "image": "https://i.imgur.com/D6Bpx91.jpeg"},
+    {"name": "Kurumi Tokisaki", "image": "https://i.imgur.com/fHK2nHL.jpeg"},
+    {"name": "Mikasa", "image": "https://i.imgur.com/HZyoLKH.jpeg"},
+    {"name": "Nezuko", "image": "https://i.imgur.com/0DrxwjW.jpeg"},
+    {"name": "Mai Sakurajima", "image": "https://i.imgur.com/w2gMj5S.jpeg"}
 ]
 
 # Mode and timers
