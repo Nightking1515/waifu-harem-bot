@@ -72,4 +72,32 @@ async def changemode(update: Update, context: ContextTypes.DEFAULT_TYPE):
 app.add_handler(CommandHandler("changetime", changetime))
 app.add_handler(CommandHandler("changemode", changemode))
 app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message_handler))
+claimed_waifus = {}
+
+async def grab(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
+
+    # Agar waifu recently spawn hui thi
+    if 'last_waifu' in context.chat_data:
+        waifu = context.chat_data['last_waifu']
+        if chat_id not in claimed_waifus:
+            claimed_waifus[chat_id] = {}
+        if waifu not in claimed_waifus[chat_id]:
+            claimed_waifus[chat_id][waifu] = user_id
+            await update.message.reply_text(f"🎉 You claimed {waifu} successfully!")
+            del context.chat_data['last_waifu']
+        else:
+            await update.message.reply_text("❌ Someone already claimed this waifu.")
+    else:
+        await update.message.reply_text("⚠️ No waifu to grab right now.")
+
+# Update spawn_waifu function
+async def spawn_waifu(context: ContextTypes.DEFAULT_TYPE, chat_id):
+    waifu = random.choice(waifus)
+    context.chat_data['last_waifu'] = waifu
+    await context.bot.send_message(chat_id=chat_id, text=f"A wild waifu appeared! ✨\nName: {waifu}\nType /grab to grab her!")
+
+# Add handler
+app.add_handler(CommandHandler("grab", grab))
 app.run_polling()
