@@ -29,4 +29,47 @@ app = ApplicationBuilder().token(BOT_TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 
 # Bot ko chalu karna
+# ✅ Waifu spawn logic
+async def spawn_waifu(context: ContextTypes.DEFAULT_TYPE, chat_id):
+    waifu = random.choice(waifus)
+    await context.bot.send_message(chat_id=chat_id, text=f"A wild waifu appeared! ✨\nName: {waifu}\nType /grab to grab her!")
+
+# ✅ Message count-based spawn logic
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global current_message_count, spawn_mode, message_count_target, last_spawn_time
+
+    if spawn_mode == "message":
+        current_message_count += 1
+        if current_message_count >= message_count_target:
+            await spawn_waifu(context, update.effective_chat.id)
+            current_message_count = 0
+    elif spawn_mode == "time":
+        if time.time() - last_spawn_time >= spawn_interval:
+            await spawn_waifu(context, update.effective_chat.id)
+            last_spawn_time = time.time()
+
+# ✅ Command to change to message-based mode
+async def changetime(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global spawn_mode, message_count_target
+    try:
+        count = int(context.args[0])
+        spawn_mode = "message"
+        message_count_target = count
+        await update.message.reply_text(f"Auto-spawn mode set to message-based: every {count} messages.")
+    except:
+        await update.message.reply_text("Usage: /changetime <number>")
+
+# ✅ Command to change to time-based mode
+async def changemode(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global spawn_mode, spawn_interval
+    try:
+        minutes = int(context.args[0])
+        spawn_mode = "time"
+        spawn_interval = minutes * 60
+        await update.message.reply_text(f"Auto-spawn mode set to time-based: every {minutes} minutes.")
+    except:
+        await update.message.reply_text("Usage: /changemode <minutes>")
+app.add_handler(CommandHandler("changetime", changetime))
+app.add_handler(CommandHandler("changemode", changemode))
+app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message_handler))
 app.run_polling()
