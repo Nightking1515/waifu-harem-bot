@@ -5,11 +5,11 @@ import time
 
 # Waifu list (tum baad me isme aur add kar sakte ho)
 waifus = [
-    {"name": "Rem", "image": "https://i.imgur.com/u8fFZQy.jpeg"},
-    {"name": "Emilia", "image": "https://i.imgur.com/fSuhzG8.jpeg"},
-    {"name": "Zero Two", "image": "https://i.imgur.com/8cvZyKR.jpeg"},
-    {"name": "Asuna", "image": "https://i.imgur.com/1FfQKn5.jpeg"},
-    {"name": "Hinata", "image": "https://i.imgur.com/ZJ3J1Bh.jpeg"},
+    {"name": "Rem", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_20-54-17.jpg""},
+    {"name": "Emilia", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_21-00-46.jpg""},
+    {"name": "Zero Two", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_21-00-44.jpg""},
+    {"name": "Asuna", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_19-53-01.jpg""},
+    {"name": "Hinata", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_21-00-47.jpg""},
     {"name": "Rias Gremory", "image": "https://i.imgur.com/D6Bpx91.jpeg"},
     {"name": "Kurumi Tokisaki", "image": "https://i.imgur.com/fHK2nHL.jpeg"},
     {"name": "Mikasa", "image": "https://i.imgur.com/HZyoLKH.jpeg"},
