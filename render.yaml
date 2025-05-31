@@ -1,8 +1,6 @@
 services:
   - type: web
     name: waifu-harem-bot
-    runtime: python
+    env: python
     buildCommand: ""
     startCommand: python main.py
-    plan: free
-    region: singapore
