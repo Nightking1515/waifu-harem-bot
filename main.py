@@ -1,19 +1,20 @@
-import os
-from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
+import logging
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = "7692706456:AAEB7jphJNSOpbBl7bzxSnausRZ01viIEbY"
 
-if not BOT_TOKEN:
-    print("❌ BOT_TOKEN not set")
-    exit(1)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher(bot)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Hello! Waifu Harem Bot is live!")
 
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):
-    await message.reply("✅ Bot is running successfully!")
+if __name__ == '__main__':
+    app = ApplicationBuilder().token(TOKEN).build()
 
-if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    app.add_handler(CommandHandler("start", start))
+
+    app.run_polling()
