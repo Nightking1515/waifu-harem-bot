@@ -1,8 +1,16 @@
 import random
-import asyncio
-from telegram.ext import MessageHandler, filters
 import time
-waifus = [
+from telegram import Update
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters,
+)
+
+# List of Waifus and Bald characters
+characters = [
     {
         "name": "Rem",
         "image": "https://i.imgur.com/u8fFZQy.jpeg"
@@ -14,62 +22,63 @@ waifus = [
     {
         "name": "Zero Two",
         "image": "https://i.imgur.com/8cvZyKR.jpeg"
+    },
+    {
+        "name": "Saitama",
+        "image": "https://i.imgur.com/3fJ1P48.jpeg"
+    },
+    {
+        "name": "Krillin",
+        "image": "https://i.imgur.com/2fJ1P48.jpeg"
     }
-    # Add more waifus with actual image URLs ending in .jpg/.jpeg/.png
 ]
-# Global current waifu
-current_waifu = None
 
-async def spawn_waifu(context: ContextTypes.DEFAULT_TYPE, chat_id):
-    global current_waifu
-    current_waifu = random.choice(waifus)
-    await context.bot.send_photo(
-        chat_id=chat_id,
-        photo=current_waifu["image"],
-        caption="✨ A NEW CHARACTER HAS APPEARED! ✨\nUse /grab to add it in your harem."
-    )
-
-# Mode and timers
+# Spawn mode and timer settings
 spawn_mode = "time"  # "time" or "message"
-spawn_interval = 120  # seconds (2 minutes)
+spawn_interval = 120  # in seconds (2 minutes)
 message_count_target = 100
 current_message_count = 0
 last_spawn_time = 0
-from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-# Telegram Bot Token (testing ke liye direct likh rahe hain)
+# Currently spawned character
+current_character = None
+
+# User harem data
+user_harems = {}
+
+# Telegram Bot Token
 BOT_TOKEN = "7692706456:AAEB7jphJNSOpbBl7bzxSnausRZ01viIEbY"
 
-# /start command ka handler
+# /start command handler
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Hello! Waifu Harem Bot is live and ready to serve waifus!")
+    await update.message.reply_text("✅ Hello! Waifu Harem Bot is active and ready to serve!")
 
-# Bot application banana
-app = ApplicationBuilder().token(BOT_TOKEN).build()
-app.add_handler(CommandHandler("start", start))
+# Character spawn function
+async def spawn_character(context: ContextTypes.DEFAULT_TYPE, chat_id):
+    global current_character
+    current_character = random.choice(characters)
+    context.chat_data['last_character'] = current_character
+    await context.bot.send_photo(
+        chat_id=chat_id,
+        photo=current_character["image"],
+        caption="✨ A new character has appeared! ✨\nUse /grab to add it to your harem."
+    )
 
-# Bot ko chalu karna
-# ✅ Waifu spawn logic
-async def spawn_waifu(context: ContextTypes.DEFAULT_TYPE, chat_id):
-    waifu = random.choice(waifus)
-    await context.bot.send_message(chat_id=chat_id, text=f"A wild waifu appeared! ✨\nName: {waifu}\nType /grab to grab her!")
-
-# ✅ Message count-based spawn logic
+# Message handler
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global current_message_count, spawn_mode, message_count_target, last_spawn_time
 
     if spawn_mode == "message":
         current_message_count += 1
         if current_message_count >= message_count_target:
-            await spawn_waifu(context, update.effective_chat.id)
+            await spawn_character(context, update.effective_chat.id)
             current_message_count = 0
     elif spawn_mode == "time":
         if time.time() - last_spawn_time >= spawn_interval:
-            await spawn_waifu(context, update.effective_chat.id)
+            await spawn_character(context, update.effective_chat.id)
             last_spawn_time = time.time()
 
-# ✅ Command to change to message-based mode
+# /changetime command handler
 async def changetime(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global spawn_mode, message_count_target
     try:
@@ -80,7 +89,7 @@ async def changetime(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         await update.message.reply_text("Usage: /changetime <number>")
 
-# ✅ Command to change to time-based mode
+# /changemode command handler
 async def changemode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global spawn_mode, spawn_interval
     try:
@@ -90,35 +99,52 @@ async def changemode(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Auto-spawn mode set to time-based: every {minutes} minutes.")
     except:
         await update.message.reply_text("Usage: /changemode <minutes>")
-app.add_handler(CommandHandler("changetime", changetime))
-app.add_handler(CommandHandler("changemode", changemode))
-app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message_handler))
-claimed_waifus = {}
 
+# /grab command handler
 async def grab(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     chat_id = update.effective_chat.id
 
-    # Agar waifu recently spawn hui thi
-    if 'last_waifu' in context.chat_data:
-        waifu = context.chat_data['last_waifu']
-        if chat_id not in claimed_waifus:
-            claimed_waifus[chat_id] = {}
-        if waifu not in claimed_waifus[chat_id]:
-            claimed_waifus[chat_id][waifu] = user_id
-            await update.message.reply_text(f"🎉 You claimed {waifu} successfully!")
-            del context.chat_data['last_waifu']
+    if 'last_character' in context.chat_data:
+        character = context.chat_data['last_character']
+        if chat_id not in user_harems:
+            user_harems[chat_id] = {}
+        if user_id not in user_harems[chat_id]:
+            user_harems[chat_id][user_id] = []
+        if character["name"] not in [c["name"] for c in user_harems[chat_id][user_id]]:
+            user_harems[chat_id][user_id].append(character)
+            await update.message.reply_text(f"🎉 You claimed {character['name']} to your harem!")
+            del context.chat_data['last_character']
         else:
-            await update.message.reply_text("❌ Someone already claimed this waifu.")
+            await update.message.reply_text("❌ You already claimed this character.")
     else:
-        await update.message.reply_text("⚠️ No waifu to grab right now.")
+        await update.message.reply_text("⚠️ No character available to grab right now.")
 
-# Update spawn_waifu function
-async def spawn_waifu(context: ContextTypes.DEFAULT_TYPE, chat_id):
-    waifu = random.choice(waifus)
-    context.chat_data['last_waifu'] = waifu
-    await context.bot.send_message(chat_id=chat_id, text=f"A wild waifu appeared! ✨\nName: {waifu}\nType /grab to grab her!")
+# /harem command handler
+async def harem(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
 
-# Add handler
+    if chat_id in user_harems and user_id in user_harems[chat_id]:
+        harem_list = user_harems[chat_id][user_id]
+        if harem_list:
+            message = "💖 Your harem:\n"
+            for character in harem_list:
+                message += f"- {character['name']}\n"
+            await update.message.reply_text(message)
+        else:
+            await update.message.reply_text("😢 Your harem is empty.")
+    else:
+        await update.message.reply_text("😢 Your harem is empty.")
+
+# Build app and handlers
+app = ApplicationBuilder().token(BOT_TOKEN).build()
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("changetime", changetime))
+app.add_handler(CommandHandler("changemode", changemode))
 app.add_handler(CommandHandler("grab", grab))
+app.add_handler(CommandHandler("harem", harem))
+app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), message_handler))
+
+# Start the bot
 app.run_polling()
