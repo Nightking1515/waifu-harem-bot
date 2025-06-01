@@ -2,20 +2,32 @@ import random
 import asyncio
 from telegram.ext import MessageHandler, filters
 import time
-
-# Waifu list (tum baad me isme aur add kar sakte ho)
 waifus = [
-    {"name": "Rem", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_20-54-17.jpg""},
-    {"name": "Emilia", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_21-00-46.jpg""},
-    {"name": "Zero Two", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_21-00-44.jpg""},
-    {"name": "Asuna", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_19-53-01.jpg""},
-    {"name": "Hinata", "image": ""C:\Users\hp\Downloads\photo_2025-05-31_21-00-47.jpg""},
-    {"name": "Rias Gremory", "image": "https://i.imgur.com/D6Bpx91.jpeg"},
-    {"name": "Kurumi Tokisaki", "image": "https://i.imgur.com/fHK2nHL.jpeg"},
-    {"name": "Mikasa", "image": "https://i.imgur.com/HZyoLKH.jpeg"},
-    {"name": "Nezuko", "image": "https://i.imgur.com/0DrxwjW.jpeg"},
-    {"name": "Mai Sakurajima", "image": "https://i.imgur.com/w2gMj5S.jpeg"}
+    {
+        "name": "Rem",
+        "image": "https://i.imgur.com/u8fFZQy.jpeg"
+    },
+    {
+        "name": "Emilia",
+        "image": "https://i.imgur.com/fSuhzG8.jpeg"
+    },
+    {
+        "name": "Zero Two",
+        "image": "https://i.imgur.com/8cvZyKR.jpeg"
+    }
+    # Add more waifus with actual image URLs ending in .jpg/.jpeg/.png
 ]
+# Global current waifu
+current_waifu = None
+
+async def spawn_waifu(context: ContextTypes.DEFAULT_TYPE, chat_id):
+    global current_waifu
+    current_waifu = random.choice(waifus)
+    await context.bot.send_photo(
+        chat_id=chat_id,
+        photo=current_waifu["image"],
+        caption="✨ A NEW CHARACTER HAS APPEARED! ✨\nUse /grab to add it in your harem."
+    )
 
 # Mode and timers
 spawn_mode = "time"  # "time" or "message"
