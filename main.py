@@ -1,5 +1,6 @@
 import logging
 import random
+import asyncio
 from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -64,17 +65,12 @@ async def handle_guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         del user_games[user_id]
 
-# Main function to run the bot
-async def main():
-    app = ApplicationBuilder().token("7692706456:AAEB7jphJNSOpbBl7bzxSnausRZ01viIEbY").build()
+# Create and run bot
+app = ApplicationBuilder().token("7692706456:AAEB7jphJNSOpbBl7bzxSnausRZ01viIEbY").build()
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("giveup", giveup))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_guess))
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("giveup", giveup))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_guess))
-
-    print("Bot is running...")
-    await app.run_polling()
-
+# Run directly without asyncio.run()
 if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
+    app.run_polling()
